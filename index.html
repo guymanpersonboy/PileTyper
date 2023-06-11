@@ -14,9 +14,77 @@
     </canvas>
     
     <script>
-        "use strict";
         let canvas;
         let context;
+
+        let gameObjects;
+
+        let secondsPassed = 0;
+        let oldTimeStamp = 0;
+        let movingSpeed = 50;
+
+        const g = 9.81;
+        const canvasWidth = 600;
+        const canvasHeight = 750;
+        const colors = [
+            "#BDBDBD", "#D3D3D3", "#DCDCDC", // Grays
+            "#FFC1C1", "#FFD2D2", "#FFDDDD", // Reds
+            "#FFC88B", "#FFD8A8", "#FFE8C5", // Oranges
+            "#FFECB3", "#FFF7B3", "#FFFEDF", // Yellows
+            "#D4FFA9", "#E6FFC2", "#C1FFC1", // Greens
+            "#B3FFB3", "#C1FFC1", "#D2FFFF", // Blues
+            "#B3B3FF", "#E4D1FF", "#C3ACFF", // Purples
+            "#D8B3D8", "#FFB3FF", "#FFD1E8", // Pinks
+            "#FFD7C5", "#FFEED1", "#FFF5D8"  // Other colors
+        ];
+
+        // Set a restitution, a lower value will lose more energy when colliding
+        const restitution = 0.90;
+
+        class GameObject
+        {
+            constructor (context, x, y, vx, vy, mass){
+                this.context = context;
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.mass = mass;
+                this.restitution = restitution;
+
+                this.isColliding = false;
+            }
+        }
+
+        class Square extends GameObject
+        {
+            constructor (context, x, y, vx, vy, mass, color) {
+                super(context, x, y, vx, vy, mass);
+
+                // Set default width and height
+                this.width = 50;
+                this.height = 50;
+                this.color = color;
+            }
+
+            draw() {
+                // Draw a simple square
+                this.context.strokeStyle = '#5c5c5c';
+                this.context.strokeRect(this.x, this.y, this.width, this.height);
+                this.context.fillStyle = this.color;
+                this.context.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            update(secondsPassed) {
+                // Apply acceleration
+                this.vy += g * secondsPassed;
+
+                // Move with set velocity
+                this.x += this.vx * secondsPassed;
+                this.y += this.vy * secondsPassed;
+            }
+        }
+
 
         window.onload = init;
 
@@ -25,26 +93,132 @@
             canvas = document.getElementById('canvas');
             context = canvas.getContext('2d');
 
-            draw();
-            write();
+            createWorld();
+
+            // Start the first frame request
+            window.requestAnimationFrame(gameLoop);
         }
 
-        function draw() {
-            // Get a random color, red or blue
-            let randomColor = Math.random() > 0.5? '#ff8080' : '#0099b0';
-
-            // Draw a rectangle
-            context.fillStyle = randomColor;
-            context.fillRect(100, 50, 120, 75);
+        function createWorld() {
+            gameObjects = [
+                new Square(context, 250, 50, 0, 0, 100, getRandomColor()),
+                new Square(context, 250, 300, 0, 0, 100, getRandomColor()),
+                new Square(context, 150, 0, 0, 0, 100, getRandomColor()),
+                new Square(context, 250, 150, 0, 0, 100, getRandomColor()),
+                new Square(context, 350, 75, 0, 0, 100, getRandomColor()),
+                new Square(context, 300, 300, 0, 0, 100, getRandomColor())
+            ];
         }
 
-        function write() {
-            context.fillStyle = 'black';
+        function gameLoop(timeStamp)
+        {
+            secondsPassed = (timeStamp - oldTimeStamp) / 1000;
+            oldTimeStamp = timeStamp;
 
-            context.fillText("Make dynamic", 200, 100);
-            context.font = '25px Arial';
-            context.textAlign = 'right';
-            context.textBaseline = 'bottom';
+            // Loop over all game objects
+            for (let i = 0; i < gameObjects.length; i++) {
+                gameObjects[i].update(secondsPassed);
+            }
+
+            detectCollisions()
+            detectEdgeCollisions()
+            clearCanvas();
+
+            // Do the same to draw
+            for (let i = 0; i < gameObjects.length; i++) {
+                gameObjects[i].draw();
+            }
+
+            window.requestAnimationFrame(gameLoop);
+        }
+
+        function clearCanvas() {
+            // Clear the entire canvas
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function detectCollisions() {
+            let obj1;
+            let obj2;
+
+            // Reset collision state of all objects
+            for (let i = 0; i < gameObjects.length; i++) {
+                gameObjects[i].isColliding = false;
+            }
+
+            // Start checking for collisions
+            for (let i = 0; i < gameObjects.length; i++)
+            {
+                obj1 = gameObjects[i];
+                for (let j = i + 1; j < gameObjects.length; j++)
+                {
+                    obj2 = gameObjects[j];
+
+                    // Compare object1 with object2
+                    if (rectIntersect(obj1.x, obj1.y, obj1.width, obj1.height, obj2.x, obj2.y, obj2.width, obj2.height)){
+                        obj1.isColliding = true;
+                        obj2.isColliding = true;
+
+                        let vCollision = {x: obj2.x - obj1.x, y: obj2.y - obj1.y};
+                        let distance = Math.sqrt((obj2.x-obj1.x)*(obj2.x-obj1.x) + (obj2.y-obj1.y)*(obj2.y-obj1.y));
+                        let vCollisionNorm = {x: vCollision.x / distance, y: vCollision.y / distance};
+                        let vRelativeVelocity = {x: obj1.vx - obj2.vx, y: obj1.vy - obj2.vy};
+                        let speed = vRelativeVelocity.x * vCollisionNorm.x + vRelativeVelocity.y * vCollisionNorm.y;
+
+                        speed *= Math.min(obj1.restitution, obj2.restitution);
+                        if (speed < 0){
+                            break;
+                        }
+
+                        let impulse = 2 * speed / (obj1.mass + obj2.mass);
+                        obj1.vx -= (impulse * obj2.mass * vCollisionNorm.x);
+                        obj1.vy -= (impulse * obj2.mass * vCollisionNorm.y);
+                        obj2.vx += (impulse * obj1.mass * vCollisionNorm.x);
+                        obj2.vy += (impulse * obj1.mass * vCollisionNorm.y);
+                    }
+                }
+            }
+        }
+
+        function rectIntersect(x1, y1, w1, h1, x2, y2, w2, h2) {
+            // Check x and y for overlap
+            if (x2 > w1 + x1 || x1 > w2 + x2 || y2 > h1 + y1 || y1 > h2 + y2){
+                return false;
+            }
+            return true;
+        }
+
+        function detectEdgeCollisions()
+        {
+            let obj;
+            for (let i = 0; i < gameObjects.length; i++)
+            {
+                obj = gameObjects[i];
+
+                // Check for left and right
+                if (obj.x < 0){
+                    obj.vx = Math.abs(obj.vx) * restitution;
+                    obj.x = 0;
+                }else if (obj.x > canvasWidth - obj.height){
+                    obj.vx = -Math.abs(obj.vx) * restitution;
+                    obj.x = canvasWidth - obj.height;
+                }
+
+                // Check for top and bottom
+                if (obj.y < 0){
+                    obj.vy = Math.abs(obj.vy) * restitution;
+                    obj.y = 0;
+                } else if (obj.y > canvasHeight - obj.height){
+                    obj.xy = 0.1;
+                    obj.vy = 0.1;
+                    obj.y = canvasHeight - obj.height;
+                }
+            }
+        }
+
+        function getRandomColor() {
+            const randomIndex = Math.floor(Math.random() * colors.length);
+            return colors[randomIndex];
         }
 
     </script>
