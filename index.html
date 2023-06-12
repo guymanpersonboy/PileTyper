@@ -16,6 +16,7 @@
     <script>
         let canvas;
         let context;
+        let endgame = false;
 
         let gameObjects = [];
         let keysPressed = [];
@@ -89,6 +90,7 @@
                 this.context = context;
                 this.square = square;
                 this.word = word;
+                this.lettersTyped = 0;
             }
 
             draw() {
@@ -97,8 +99,13 @@
                 this.context.fillStyle = this.square.color;
                 this.context.fillRect(this.square.x, this.square.y, this.square.width, this.square.height);
 
+                // Untyped text is black
                 this.context.fillStyle = 'black';
                 this.context.fillText(this.word, this.square.x + (this.square.width * 0.75), this.square.y + this.square.height * 0.75);
+
+                // Typed text is red
+                this.context.fillStyle = 'red';
+                this.context.fillText(this.word.substring(0, this.lettersTyped), this.square.x + (this.square.width * 0.75), this.square.y + this.square.height * 0.75)
             }
 
             update(secondsPassed) {
@@ -106,10 +113,24 @@
                 if (this.square.hasNotCollided) {
                     this.square.vy += g * secondsPassed;
                 }
-
                 // Move with set velocity
                 this.square.x += this.square.vx * secondsPassed;
                 this.square.y += this.square.vy * secondsPassed;
+
+            }
+
+            checkLettersTyped(keysPressed) {
+                // Check letters typed
+                for (let i = 0; i < keysPressed.length; i++) {
+                    const letter = keysPressed[i];
+                    if (this.word[i] == letter) {
+                        this.lettersTyped += 1;
+                    } else {
+                        this.lettersTyped = 0;
+                        break;
+                    }
+                }
+                return this.lettersTyped == this.word.length;
             }
         }
 
@@ -146,9 +167,14 @@
                 }
             }
 
-            // Loop over all game objects
-            for (let i = 0; i < gameObjects.length; i++) {
-                gameObjects[i].update(secondsPassed);
+            // Update blocks, declare letters typed for draw
+            for (let block = 0; block < gameObjects.length; block++) {
+                gameObjects[block].update(secondsPassed);
+
+                if (gameObjects[block].checkLettersTyped(keysPressed)) {
+                    // All letters typed, delete block!
+                    gameObjects.splice(block, 1);
+                }
             }
 
             detectCollisions()
@@ -242,7 +268,7 @@
                     obj.y = 0; // move down
                     endgame = true; // touched the top
                 } else if (obj.y > canvasHeight - obj.height){
-                    obj.vy = 0; // kill bounce
+                    obj.vy = -Math.abs(obj.vy) * 0.1; // minimize bounce
                     obj.y = canvasHeight - obj.height; // move up
                     obj.hasNotCollided = false;
                 }
@@ -266,9 +292,9 @@
 
             // Get the actual key character
             var key = String.fromCharCode(keyCode);
-            console.log('Key:', key);
+            console.log('Key.toLowerCase:', key.toLowerCase());
 
-            keysPressed.push(key);
+            keysPressed.push(key.toLowerCase);
             console.log(keysPressed);
         });
 
