@@ -18,6 +18,7 @@
         let context;
 
         let gameObjects = [];
+        let keysPressed = [];
 
         let secondsPassed = 0;
         let oldTimeStamp = 0;
@@ -55,7 +56,7 @@
         ];
 
         // Set a restitution, a lower value will lose more energy when colliding
-        const restitution = 0.80;
+        const restitution = 0.90;
 
         class GameObject
         {
@@ -78,6 +79,7 @@
                 this.width = width;
                 this.height = height;
                 this.color = color;
+                this.hasNotCollided = true;
             }
         }
 
@@ -101,7 +103,9 @@
 
             update(secondsPassed) {
                 // Apply acceleration
-                this.square.vy += g * secondsPassed;
+                if (this.square.hasNotCollided) {
+                    this.square.vy += g * secondsPassed;
+                }
 
                 // Move with set velocity
                 this.square.x += this.square.vx * secondsPassed;
@@ -138,7 +142,7 @@
                 blockSeconds = 0;
                 // Don't let the blocks fall down too frequently
                 if (blockRate > 2) {
-                    blockRate -= 0.125
+                    blockRate -= 0.20
                 }
             }
 
@@ -165,7 +169,7 @@
             const word = getRandomWord();
             const randomX = Math.min(Math.floor(Math.random() * canvasWidth), canvasWidth - word.length * 25);
             //                                  x, y, width, height, mass, color
-            const square = new Square(context, randomX, 50, word.length * 25, 50, word.length * 100, getRandomColor());
+            const square = new Square(context, randomX, 50, word.length * 25, 50, word.length * 1000, getRandomColor());
 
             gameObjects.push(new Block(context, square, word));
         }
@@ -200,6 +204,9 @@
                         obj1.vy -= (impulse * obj2.mass * vCollisionNorm.y);
                         obj2.vx += (impulse * obj1.mass * vCollisionNorm.x);
                         obj2.vy += (impulse * obj1.mass * vCollisionNorm.y);
+
+                        obj1.hasNotCollided = false;
+                        obj2.hasNotCollided = false;
                     }
                 }
             }
@@ -223,20 +230,21 @@
                 // Check for left and right
                 if (obj.x < 0){
                     obj.vx = Math.abs(obj.vx) * restitution;
-                    obj.x = 0;
-                }else if (obj.x > canvasWidth - obj.height){
+                    obj.x = 0; // move right
+                } else if (obj.x > canvasWidth - obj.width) {
                     obj.vx = -Math.abs(obj.vx) * restitution;
-                    obj.x = canvasWidth - obj.height;
+                    obj.x = canvasWidth - obj.width; // move left
                 }
 
                 // Check for top and bottom
-                if (obj.y < 0){
+                if (obj.y <= 0){
                     obj.vy = Math.abs(obj.vy) * restitution;
-                    obj.y = 0;
+                    obj.y = 0; // move down
+                    endgame = true; // touched the top
                 } else if (obj.y > canvasHeight - obj.height){
-                    obj.xy = 0.1;
-                    obj.vy = 0.1;
-                    obj.y = canvasHeight - obj.height;
+                    obj.vy = 0; // kill bounce
+                    obj.y = canvasHeight - obj.height; // move up
+                    obj.hasNotCollided = false;
                 }
             }
         }
@@ -250,6 +258,19 @@
             const randomIndex = Math.floor(Math.random() * colors.length);
             return colors[randomIndex];
         }
+
+        document.addEventListener('keydown', function(event) {
+            // Get the key code of the pressed key
+            var keyCode = event.keyCode || event.which;
+            console.log('Key code:', keyCode);
+
+            // Get the actual key character
+            var key = String.fromCharCode(keyCode);
+            console.log('Key:', key);
+
+            keysPressed.push(key);
+            console.log(keysPressed);
+        });
 
     </script>
 </body>
