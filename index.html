@@ -27,7 +27,7 @@
         let movingSpeed = 50;
 
         let blockSeconds = 0;
-        let blockRate = 6.0
+        let blockRate = 5.0
 
         const g = 9.81;
         const canvasWidth = 600;
@@ -187,7 +187,7 @@
             // Clear the entire canvas
             context.clearRect(0, 0, canvas.width, canvas.height);
             context.fillStyle = 'black';
-            context.fillText('Game Over', canvasWidth * 0.5, 100);
+            context.fillText('Game Over', (canvasWidth * 0.5) + 50, canvasHeight * 0.5);
         }
 
         function makeBlock() {
