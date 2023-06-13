@@ -17,16 +17,17 @@
         let canvas;
         let context;
         let endgame = false;
+        let key;
 
         let gameObjects = [];
-        let keysPressed = [];
+        let wordProgress = [];
 
         let secondsPassed = 0;
         let oldTimeStamp = 0;
         let movingSpeed = 50;
 
         let blockSeconds = 0;
-        let blockRate = 6.0
+        let blockRate = 20.0
 
         const g = 9.81;
         const canvasWidth = 600;
@@ -116,21 +117,6 @@
                 // Move with set velocity
                 this.square.x += this.square.vx * secondsPassed;
                 this.square.y += this.square.vy * secondsPassed;
-
-            }
-
-            checkLettersTyped(keysPressed) {
-                // Check letters typed
-                for (let i = 0; i < keysPressed.length; i++) {
-                    const letter = keysPressed[i];
-                    if (this.word[i] == letter) {
-                        this.lettersTyped += 1;
-                    } else {
-                        this.lettersTyped = 0;
-                        break;
-                    }
-                }
-                return this.lettersTyped == this.word.length;
             }
         }
 
@@ -154,6 +140,10 @@
 
         function gameLoop(timeStamp)
         {
+            if (endgame) {
+                window.requestAnimationFrame(gameOver);
+                return;
+            }
             secondsPassed = (timeStamp - oldTimeStamp) / 1000;
             oldTimeStamp = timeStamp;
             blockSeconds += secondsPassed
@@ -162,21 +152,13 @@
                 makeBlock();
                 blockSeconds = 0;
                 // Don't let the blocks fall down too frequently
-                if (blockRate > 2) {
+                // TODO: CHANGE BACK TO 2
+                if (blockRate > 5) {
                     blockRate -= 0.20
                 }
             }
 
-            // Update blocks, declare letters typed for draw
-            for (let block = 0; block < gameObjects.length; block++) {
-                gameObjects[block].update(secondsPassed);
-
-                if (gameObjects[block].checkLettersTyped(keysPressed)) {
-                    // All letters typed, delete block!
-                    gameObjects.splice(block, 1);
-                }
-            }
-
+            updateBlocks(secondsPassed)
             detectCollisions()
             detectEdgeCollisions()
 
@@ -191,6 +173,13 @@
             window.requestAnimationFrame(gameLoop);
         }
 
+        function gameOver() {
+            // Clear the entire canvas
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = 'black';
+            context.fillText('Game Over', canvasWidth * 0.5, 100);
+        }
+
         function makeBlock() {
             const word = getRandomWord();
             const randomX = Math.min(Math.floor(Math.random() * canvasWidth), canvasWidth - word.length * 25);
@@ -198,6 +187,14 @@
             const square = new Square(context, randomX, 50, word.length * 25, 50, word.length * 1000, getRandomColor());
 
             gameObjects.push(new Block(context, square, word));
+            wordProgress.push[0];
+        }
+
+        function updateBlocks(secondsPassed) {
+            for (let i = 0; i < gameObjects.length; i++) {
+                const block = gameObjects[i];
+                block.update(secondsPassed);
+            }
         }
 
         function detectCollisions() {
@@ -291,12 +288,45 @@
             console.log('Key code:', keyCode);
 
             // Get the actual key character
-            var key = String.fromCharCode(keyCode);
-            console.log('Key.toLowerCase:', key.toLowerCase());
-
-            keysPressed.push(key.toLowerCase);
-            console.log(keysPressed);
+            key = String.fromCharCode(keyCode).toLowerCase();
+            console.log('Key:', key);
+            handleKeyPresses(key);
         });
+
+        // Courtesy of ChatGPT, to fit my code I need to push/splice wordProgress for each created/deleted block
+        function handleKeyPresses(key) {
+            for (let i = 0; i < gameObjects.length; i++) {
+                const block = gameObjects[i];
+                let progress = wordProgress[i];
+
+                if (block.word[progress] == key) {
+                    // Correct key pressed for the current word
+                    progress++;
+                    wordProgress[i] = progress;
+                    console.log(block.word);
+                    console.log(progress);
+                    
+                    if (progress == block.word.length) {
+                        // Word completed, do something
+                        console.log('Completed:', block.word);
+                        gameObjects.splice(i, 1);
+                        wordProgress.splice(i, 1);
+                    }
+                } else {
+                    if (block.word[0] != key) {
+                        // Reset progress for words that do not start with the key
+                        wordProgress[i] = 0;
+                    } else {
+                        // Start progress for words that start with the key
+                        wordProgress[i] = 1;
+                    }
+                }
+            }
+            for (let i = 0; i < gameObjects.length; i++) {
+                const block = gameObjects[i];
+                block.lettersTyped = wordProgress[i];
+            }
+        }
 
     </script>
 </body>
