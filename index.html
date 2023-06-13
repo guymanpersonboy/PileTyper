@@ -27,7 +27,7 @@
         let movingSpeed = 50;
 
         let blockSeconds = 0;
-        let blockRate = 20.0
+        let blockRate = 6.0
 
         const g = 9.81;
         const canvasWidth = 600;
@@ -101,12 +101,23 @@
                 this.context.fillRect(this.square.x, this.square.y, this.square.width, this.square.height);
 
                 // Untyped text is black
+                const blackSubstring = this.word.substring(this.lettersTyped, this.word.length);
                 this.context.fillStyle = 'black';
-                this.context.fillText(this.word, this.square.x + (this.square.width * 0.75), this.square.y + this.square.height * 0.75);
+                this.context.fillText(
+                    blackSubstring,
+                    this.square.x + (this.square.width * 0.75),
+                    this.square.y + this.square.height * 0.75
+                );
 
                 // Typed text is red
+                const redSubstring = this.word.substring(0, this.lettersTyped);
                 this.context.fillStyle = 'red';
-                this.context.fillText(this.word.substring(0, this.lettersTyped), this.square.x + (this.square.width * 0.75), this.square.y + this.square.height * 0.75)
+                this.context.fillText(
+                    redSubstring,
+                    // Courtesy of ChatGPT, to fit my code I need to center in block
+                    this.square.x + (this.square.width * 0.75) - this.context.measureText(blackSubstring).width,
+                    this.square.y + this.square.height * 0.75
+                )
             }
 
             update(secondsPassed) {
@@ -152,8 +163,7 @@
                 makeBlock();
                 blockSeconds = 0;
                 // Don't let the blocks fall down too frequently
-                // TODO: CHANGE BACK TO 2
-                if (blockRate > 5) {
+                if (blockRate > 2) {
                     blockRate -= 0.20
                 }
             }
