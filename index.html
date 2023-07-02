@@ -7,6 +7,8 @@
     <title>PileTyper</title>
     <meta name="description" content="A web browser typing game">
     <meta name="author" content="Christopher Carrasco @guymanpersonboy">
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300&family=Roboto:wght@500&display=swap" rel="stylesheet">
 </head>
 <body>
     <canvas id="canvas" width="600" height="750" style="border:1px solid lightgrey;">
@@ -139,7 +141,7 @@
             canvas = document.getElementById('canvas');
             context = canvas.getContext('2d');
 
-            context.font = '25px Arial';
+            context.font = '25px Roboto Mono';
             context.textAlign = 'right';
             context.textBaseline = 'bottom';
 
@@ -165,6 +167,8 @@
                 // Don't let the blocks fall down too frequently
                 if (blockRate > 2) {
                     blockRate -= 0.20
+                } else if (blockRate > 1) {
+                    blockRate -= 0.10
                 }
             }
 
@@ -186,7 +190,7 @@
         function gameOver() {
             // Clear the entire canvas
             context.clearRect(0, 0, canvas.width, canvas.height);
-            context.fillStyle = 'black';
+            context.fillStyle = 'red';
             context.fillText('Game Over', (canvasWidth * 0.5) + 50, canvasHeight * 0.5);
         }
 
@@ -194,7 +198,7 @@
             const word = getRandomWord();
             const randomX = Math.min(Math.floor(Math.random() * canvasWidth), canvasWidth - word.length * 25);
             //                                  x, y, width, height, mass, color
-            const square = new Square(context, randomX, 50, word.length * 25, 50, word.length * 1000, getRandomColor());
+            const square = new Square(context, randomX, 50, word.length * 25, 50, word.length * word.length * 1000, getRandomColor());
 
             gameObjects.push(new Block(context, square, word));
             wordProgress.push[0];
