@@ -28,7 +28,7 @@
         let oldTimeStamp = 0;
 
         let blockSeconds = 0;
-        let blockRate = 5.0
+        let blockRate = 4.0
 
         const g = 9.81;
         const canvasWidth = 600;
@@ -125,6 +125,8 @@
                 // Apply acceleration
                 if (this.square.hasNotCollided) {
                     this.square.vy += g * secondsPassed;
+                } else {
+                    this.square.vy -= g * secondsPassed;
                 }
                 // Move with set velocity
                 this.square.x += this.square.vx * secondsPassed;
@@ -165,7 +167,7 @@
                 blockSeconds = 0;
                 // Don't let the blocks fall down too frequently
                 if (blockRate > 2) {
-                    blockRate -= 0.20
+                    blockRate -= 0.10
                 } else if (blockRate > 1) {
                     blockRate -= 0.10
                 }
