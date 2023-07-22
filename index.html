@@ -48,17 +48,22 @@
         const canvasWidth = 600;
         const canvasHeight = 750;
         const colors = [
-            "#BDBDBD", "#D3D3D3", "#DCDCDC", // Grays
-            "#FFC1C1", "#FFD2D2", "#FFDDDD", // Reds
-            "#FFC88B", "#FFD8A8", "#FFE8C5", // Oranges
-            "#FFECB3", "#FFF7B3", "#FFFEDF", // Yellows
-            "#D4FFA9", "#E6FFC2", "#C1FFC1", // Greens
-            "#B3FFB3", "#C1FFC1", "#D2FFFF", // Blues
-            "#B3B3FF", "#E4D1FF", "#C3ACFF", // Purples
-            "#D8B3D8", "#FFB3FF", "#FFD1E8", // Pinks
-            "#FFD7C5", "#FFEED1", "#FFF5D8"  // Other colors
+            "#E0E0E0", "#F0F0F0", "#F5F5F5", // Grays
+            "#FFC4C4", "#FFDADA", "#FFEDED", // Reds
+            "#FFD19E", "#FFEBC7", "#FFEEE2", // Oranges
+            "#FFF0C6", "#FFFCD0", "#FFFFF0", // Yellows
+            "#C5FFAF", "#E0FFC6", "#CCFFCC", // Greens
+            "#B5FFB5", "#CFFFCF", "#E5FCFF", // Blues
+            "#CFCFFF", "#F1E6FF", "#D7C4FF", // Purples
+            "#F0C4F0", "#FFC2FF", "#FFDDF3", // Pinks
+            "#FFDFD2", "#FFF8E3", "#FFFDEB", // Other colors
+            "#FF6961", // Pastel Red
+            "#B2FF66", // Pastel Green
+            "#66FF66", // Pastel Chartreuse Green
+            "#66FFB2", // Pastel Aqua
+            "#66B2FF", // Pastel Blue
+            "#B266FF"  // Pastel Purple
         ];
-
         const brightColors = [
             "#FF0000", // Red
             "#FF7F00", // Orange
@@ -203,9 +208,13 @@
                 makeBlock();
                 blockSeconds = 0;
                 // Don't let the blocks fall down too frequently
-                if (blockRate > 2) {
-                    blockRate -= 0.05
+                if (blockRate > 3) {
+                    blockRate -= 0.25;
+                } else if (blockRate > 2) {
+                    blockRate -= 0.1;
                 } else if (blockRate > 1.5) {
+                    blockRate -= 0.05;
+                } else if (blockRate > 1) {
                     blockRate -= 0.01
                 }
             }
@@ -365,6 +374,7 @@
                         console.log('Completed:', block.word);
                         gameObjects.splice(i, 1);
                         wordProgress.splice(i, 1);
+                        wordProgress[i] = 0
                         updateText();
                     }
                 } else {
