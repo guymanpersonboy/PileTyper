@@ -7,13 +7,26 @@
     <title>PileTyper</title>
     <meta name="description" content="A web browser typing game">
     <meta name="author" content="Christopher Carrasco @guymanpersonboy">
-
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300&family=Roboto:wght@500&display=swap" rel="stylesheet">
+    <style>
+        .row {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        h1, h2, h3 {
+            font-family: "Roboto Mono", Helvetica, Arial, sans-serif;
+        }
+    </style>
 </head>
 <body>
-    <canvas id="canvas" width="600" height="750" style="border:1px solid lightgrey;">
-        Your browser does not support the HTML5 canvas tag.
-    </canvas>
+    <div class="row">
+        <canvas id="canvas" width="600" height="750" style="border:1px solid lightgrey;">
+            Your browser does not support the HTML5 canvas tag.
+        </canvas>
+        <h2 id="text">Words typed:</h1>
+        <h2 id="score">0</h2>
+    </div>
     
     <script>
         let canvas;
@@ -26,6 +39,7 @@
 
         let secondsPassed = 0;
         let oldTimeStamp = 0;
+        let score = 0;
 
         let blockSeconds = 0;
         let blockRate = 4.0
@@ -43,6 +57,29 @@
             "#B3B3FF", "#E4D1FF", "#C3ACFF", // Purples
             "#D8B3D8", "#FFB3FF", "#FFD1E8", // Pinks
             "#FFD7C5", "#FFEED1", "#FFF5D8"  // Other colors
+        ];
+
+        const brightColors = [
+            "#FF0000", // Red
+            "#FF7F00", // Orange
+            "#FFA500", // Orange Yellow
+            "#7FFF00", // Chartreuse Green
+            "#00FF00", // Green
+            "#00FF7F", // Spring Green
+            "#00FFFF", // Cyan / Aqua
+            "#007FFF", // Azure Blue
+            "#0000FF", // Blue
+            "#7F00FF", // Violet / Purple
+            "#FF00FF", // Magenta / Fuchsia
+            "#FF007F", // Rose
+            "#FF4D4D", // Coral Red
+            "#FFB266", // Peach
+            "#FF6961", // Pastel Red
+            "#B2FF66", // Pastel Green
+            "#66FF66", // Pastel Chartreuse Green
+            "#66FFB2", // Pastel Aqua
+            "#66B2FF", // Pastel Blue
+            "#B266FF"  // Pastel Purple
         ];
 
         const wordsArray = [
@@ -167,9 +204,9 @@
                 blockSeconds = 0;
                 // Don't let the blocks fall down too frequently
                 if (blockRate > 2) {
-                    blockRate -= 0.10
-                } else if (blockRate > 1) {
-                    blockRate -= 0.10
+                    blockRate -= 0.05
+                } else if (blockRate > 1.5) {
+                    blockRate -= 0.01
                 }
             }
 
@@ -328,6 +365,7 @@
                         console.log('Completed:', block.word);
                         gameObjects.splice(i, 1);
                         wordProgress.splice(i, 1);
+                        updateText();
                     }
                 } else {
                     if (block.word[0] != key) {
@@ -357,14 +395,46 @@
                 endgame = false;
                 gameObjects = [];
                 wordProgress = [];
+                score = -1;
                 blockSeconds = 0;
                 blockRate = 5.0
                 
                 makeBlock();
+                updateText();
 
                 // Restart the first frame request
                 window.requestAnimationFrame(gameLoop);
             }
+        }
+
+        function updateText() {
+            // Courtesy of ChatGPT
+            const textElement = document.getElementById('text');
+            const letters = textElement.textContent.split(''); // Split the text into individual letters
+
+            for (let i = 0; i < letters.length; i++) {
+                // Create a new span element for each letter
+                const span = document.createElement('span');
+                span.textContent = letters[i];
+
+                const randomIndex = Math.floor(Math.random() * brightColors.length);
+                span.style.color = brightColors[randomIndex];
+
+                // Replace the original letter with the new span element
+                letters[i] = span;
+            }
+
+            // Replace the text content of the paragraph with the colored letters
+            textElement.textContent = '';
+            letters.forEach(letter => textElement.appendChild(letter));
+            
+            score += 1;
+            const spanScore = document.createElement('span');
+            spanScore.textContent = score.toString();
+            const randomHalfIndex = Math.floor(Math.random() * brightColors.length * 0.5);
+            spanScore.style.color = brightColors[randomHalfIndex];
+            document.getElementById("score").textContent = '';
+            document.getElementById("score").appendChild(spanScore);
         }
 
     </script>
