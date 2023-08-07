@@ -215,8 +215,9 @@ function gameOver() {
 function makeBlock() {
     const word = getNextWord();
     const randomX = Math.min(Math.floor(Math.random() * canvasWidth), canvasWidth - word.length * 25);
-    //                                  x, y, width, height, mass, color
-    const square = new Square(context, randomX, 50, word.length * 25, 50, word.length * word.length * 1000, getRandomColor());
+    const length = (word.length * 25 > 600) ? 600 : word.length * 25;
+    //                              context, x, y, width, height, mass, color
+    const square = new Square(context, randomX, 50, length, 50, word.length * word.length * 1000, getRandomColor());
 
     gameObjects.push(new Block(context, square, word));
     wordProgress.push[0];
@@ -355,11 +356,11 @@ function detectEdgeCollisions()
 
 function getNextWord() {
     let word = ""
-    if (score != 0 && score % 1000 === 0) {
+    if (score != 0 && score % 100 === 0) {
         word = integerToWord(score) + "super slay";
-    } else if (score != 0 && score % 500 === 0) {
+    } else if (score != 0 && score % 50 === 0) {
         word = integerToWord(score) + "impressive";
-    } else if (score != 0 && score % 100 === 0) {
+    } else if (score != 0 && score % 10 === 0) {
         word = integerToWord(score) + "nice";
     } else {
         const randomIndex = Math.floor(Math.random() * wordsArray.length);
@@ -378,8 +379,7 @@ function integerToWord(num) {
 // https://stackoverflow.com/questions/5529934/javascript-numbers-to-words
 
 var ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
-var tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
-var teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+var tens = ['', 'ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
 
 function convert_millions(num) {
     if (num >= 1000000) {
@@ -406,11 +406,10 @@ function convert_hundreds(num) {
 }
 
 function convert_tens(num) {
-    if (num < 10) return ones[num];
-    else if (num >= 10 && num < 20) return teens[num - 10];
-    else {
-        return tens[Math.floor(num / 10)] + " " + ones[num % 10];
+    if (num < 10) {
+        return ones[num];
     }
+    return tens[Math.floor(num / 10)] + " " + ones[num % 10];
 }
 
 // end of conversion code
@@ -487,9 +486,10 @@ function restartGameOnKeyPress(event) {
         endgame = false;
         gameObjects = [];
         wordProgress = [];
-        score = -1;
+        score = 0;
         blockSeconds = 0;
         blockRate = difficulty == EASY ? 4 : (difficulty == MEDIUM ? 3 : difficulty == HARD ? 2 : 1)
+        updateScoreText();
         updateRateText();
 
         updateText("wordsTypedText");
