@@ -10,6 +10,7 @@ let wordProgress = [];
 let secondsPassed = 0;
 let oldTimeStamp = 0;
 let score = 0;
+let pointSoundCounter = 0;
 
 let blockSeconds = 0;
 let blockRate = 4.0;
@@ -445,7 +446,7 @@ function handleKeyPresses(key) {
             console.log(progress);
             
             if (progress == block.word.length) {
-                // Word completed, do something
+                // Word completed, delete block
                 console.log('Completed:', block.word);
                 gameObjects.splice(i, 1);
                 wordProgress.splice(i, 1);
@@ -456,6 +457,7 @@ function handleKeyPresses(key) {
                 updateText("difficultyText");
 
                 score += 1;
+                getNextSound().play();
                 updateScoreText();
             }
         } else {
@@ -472,6 +474,15 @@ function handleKeyPresses(key) {
         const block = gameObjects[i];
         block.lettersTyped = wordProgress[i];
     }
+}
+
+// Return the next point sound from file in sounds folder
+function getNextSound() {
+    pointSoundCounter -= 1;
+    pointSoundCounter = (pointSoundCounter < 0) ? 5 : pointSoundCounter;
+    const sound = new Audio("../sounds/Gsus4_" + pointSoundCounter + ".mp3");
+    sound.volume = 0.4;
+    return sound;
 }
 
 // Add event listener for keydown event
