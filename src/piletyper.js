@@ -442,8 +442,6 @@ function handleKeyPresses(key) {
             // Correct key pressed for the current word
             progress++;
             wordProgress[i] = progress;
-            console.log(block.word);
-            console.log(progress);
             
             if (progress == block.word.length) {
                 // Word completed, delete block
@@ -478,9 +476,10 @@ function handleKeyPresses(key) {
 
 // Return the next point sound from file in sounds folder
 function getNextSound() {
-    pointSoundCounter -= 1;
-    pointSoundCounter = (pointSoundCounter < 0) ? 5 : pointSoundCounter;
-    const sound = new Audio("../sounds/Gsus4_" + pointSoundCounter + ".mp3");
+    // pointSoundCounter -= 1;
+    // pointSoundCounter = (pointSoundCounter < 0) ? 5 : pointSoundCounter;
+    // const sound = new Audio("../sounds/Gsus4_" + pointSoundCounter + ".mp3");
+    const sound = new Audio("../sounds/Gsus4_0.mp3");
     sound.volume = 0.4;
     return sound;
 }
