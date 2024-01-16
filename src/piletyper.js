@@ -167,6 +167,10 @@ function init() {
     context.textAlign = 'right';
     context.textBaseline = 'bottom';
 
+    let music = new Audio("../sounds/After_Hours-chosic.com_(chosic.com).mp3");
+    music.loop = true;
+    music.volume = 0.5;
+    music.play();
     makeBlock();
 
     // Start the first frame request
@@ -456,7 +460,7 @@ function handleKeyPresses(key) {
                 updateText("difficultyText");
 
                 score += 1;
-                getNextSound().play();
+                // getNextSound().play();
                 updateScoreText();
             }
         } else {
