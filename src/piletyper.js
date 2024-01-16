@@ -11,6 +11,7 @@ let secondsPassed = 0;
 let oldTimeStamp = 0;
 let score = 0;
 let pointSoundCounter = 0;
+let pointSoundOrder = [3, 4, 5, 4, 5, 4, 5, 4, 0, 1, 2, 1, 2, 1, 2, 1]
 
 let blockSeconds = 0;
 let blockRate = 4.0;
@@ -476,10 +477,9 @@ function handleKeyPresses(key) {
 
 // Return the next point sound from file in sounds folder
 function getNextSound() {
-    // pointSoundCounter -= 1;
-    // pointSoundCounter = (pointSoundCounter < 0) ? 5 : pointSoundCounter;
-    // const sound = new Audio("../sounds/Gsus4_" + pointSoundCounter + ".mp3");
-    const sound = new Audio("../sounds/Gsus4_0.mp3");
+    pointSound = pointSoundOrder[pointSoundCounter++];
+    pointSoundCounter = (pointSoundCounter + 1) % pointSoundOrder.length;
+    const sound = new Audio("../sounds/Gsus4_" + pointSound + ".mp3");
     sound.volume = 0.4;
     return sound;
 }
