@@ -10,8 +10,6 @@ let wordProgress = [];
 let secondsPassed = 0;
 let oldTimeStamp = 0;
 let score = 0;
-let pointSoundCounter = 0;
-let pointSoundOrder = [3, 4, 5, 4, 5, 4, 5, 4, 0, 1, 2, 1, 2, 1, 2, 1]
 
 let blockSeconds = 0;
 let blockRate = 4.0;
@@ -175,6 +173,7 @@ function init() {
     context.textBaseline = 'bottom';
 
     makeBlock();
+    updateAllText();
 
     // Start the first frame request
     window.requestAnimationFrame(gameLoop);
@@ -460,7 +459,6 @@ function handleKeyPresses(key) {
                 updateAllText();
 
                 score += 1;
-                // getNextSound().play();
                 updateScoreText();
             }
         } else {
@@ -477,15 +475,6 @@ function handleKeyPresses(key) {
         const block = gameObjects[i];
         block.lettersTyped = wordProgress[i];
     }
-}
-
-// Return the next point sound from file in sounds folder
-function getNextSound() {
-    pointSound = pointSoundOrder[pointSoundCounter++];
-    pointSoundCounter = (pointSoundCounter + 1) % pointSoundOrder.length;
-    const sound = new Audio("../sounds/Gsus4_" + pointSound + ".mp3");
-    sound.volume = 0.1;
-    return sound;
 }
 
 // Add event listener for keydown event
@@ -506,10 +495,7 @@ function restartGameOnKeyPress(event) {
         updateScoreText();
         updateRateText();
 
-        updateText("wordsTypedText");
-        updateText("blockRateText");
-        updateText("changeDiffText");
-        updateText("difficultyText");
+        updateAllText();
 
         // Restart the first frame request
         window.requestAnimationFrame(gameLoop);
@@ -583,4 +569,5 @@ function boxClicked() {
 
     const text = difficulty == EASY ? "EASY" : (difficulty == MEDIUM ? "MEDIUM" : difficulty == HARD ? "HARD" : "INSANE");
     document.getElementById("difficultyText").textContent = text;
+    updateText("difficultyText");
 }
