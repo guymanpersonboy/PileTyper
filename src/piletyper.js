@@ -17,6 +17,9 @@ let blockSeconds = 0;
 let blockRate = 4.0;
 let difficulty = 0;
 
+let music = document.getElementById("music");
+let playButton = document.getElementById("playButton")
+
 const g = 9.81;
 const canvasWidth = 600;
 const canvasHeight = 750;
@@ -158,6 +161,10 @@ class Block
 
 window.onload = init;
 
+playButton.addEventListener("click", playButtonClicked);
+
+document.getElementById("difficultyBox").addEventListener("click", boxClicked);
+
 function init() {
     // Get a reference to the canvas
     canvas = document.getElementById('canvas');
@@ -167,10 +174,6 @@ function init() {
     context.textAlign = 'right';
     context.textBaseline = 'bottom';
 
-    let music = new Audio("../sounds/After_Hours-chosic.com_(chosic.com).mp3");
-    music.loop = true;
-    music.volume = 0.5;
-    music.play();
     makeBlock();
 
     // Start the first frame request
@@ -214,7 +217,7 @@ function gameOver() {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = 'red';
     context.fillText('Game Over', (canvasWidth * 0.5) + 55, canvasHeight * 0.5);
-    context.fillStyle = 'black';
+    context.fillStyle = 'white';
     context.fillText('Press R to Play Again', (canvasWidth * 0.70) + 30, canvasHeight * 0.60);
 }
 
@@ -454,10 +457,7 @@ function handleKeyPresses(key) {
                 gameObjects.splice(i, 1);
                 wordProgress.splice(i, 1);
                 wordProgress[i] = 0
-                updateText("wordsTypedText");
-                updateText("blockRateText");
-                updateText("changeDiffText");
-                updateText("difficultyText");
+                updateAllText();
 
                 score += 1;
                 // getNextSound().play();
@@ -484,7 +484,7 @@ function getNextSound() {
     pointSound = pointSoundOrder[pointSoundCounter++];
     pointSoundCounter = (pointSoundCounter + 1) % pointSoundOrder.length;
     const sound = new Audio("../sounds/Gsus4_" + pointSound + ".mp3");
-    sound.volume = 0.4;
+    sound.volume = 0.1;
     return sound;
 }
 
@@ -514,6 +514,13 @@ function restartGameOnKeyPress(event) {
         // Restart the first frame request
         window.requestAnimationFrame(gameLoop);
     }
+}
+
+function updateAllText() {
+    updateText("wordsTypedText");
+    updateText("blockRateText");
+    updateText("changeDiffText");
+    updateText("difficultyText");
 }
 
 function updateText(id) {
@@ -555,6 +562,16 @@ function updateRateText() {
     document.getElementById("rate").appendChild(spanRate);
 }
 
+function playButtonClicked() {
+    if (!music.paused && music.duration > 0) {
+        music.pause();
+        playButton.src="../imgs/play-button.png";
+    } else {
+        music.play();
+        playButton.src="../imgs/pause-button.png";
+    }
+}
+
 function boxClicked() {
     difficulty += 1;
     difficulty %= 4;
@@ -567,5 +584,3 @@ function boxClicked() {
     const text = difficulty == EASY ? "EASY" : (difficulty == MEDIUM ? "MEDIUM" : difficulty == HARD ? "HARD" : "INSANE");
     document.getElementById("difficultyText").textContent = text;
 }
-
-document.getElementById("difficultyBox").addEventListener("click", boxClicked);

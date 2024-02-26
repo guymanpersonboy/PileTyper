@@ -28,26 +28,39 @@
             width: 100px;
             height: 100px;
             background-color: red;
-            margin: 0px 0px 0px 10px;
+            cursor: pointer; /* Set the cursor to change over box */
+            border-radius: 15px; /* Set the radius for all corners */
+        }
+        
+        .music-button {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-radius: 25px; 
             cursor: pointer;
-            border-radius: 15px; /* Set the border radius for all corners */
+            margin-left: 5px;
         }
         
         h1, h2, h3 {
             font-family: "Roboto Mono", Helvetica, Arial, sans-serif;
-            text-shadow: 1px 1px 2px #000; /* Outline effect */
+            color: white;
+            text-shadow: 1px 1px 2px #555; /* Outline effect */
         }
 
         p {
             font-family: "Roboto Mono", Helvetica, Arial, sans-serif;
-            color: #fff;
+            color: white;
             padding-top: 20px;
             text-align: center;
-            text-shadow: 1px 1px 2px #000; /* Outline effect */
+            text-shadow: 1px 1px 2px black; /* Outline effect */
         }
     </style>
 </head>
-<body>
+<body style="background-color:#000;">
+    <audio loop id="music">
+        <source src="../sounds/After_Hours-chosic.com_(chosic.com).mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
     <div class="row">
         <div class="left-item">
             <canvas id="canvas" width="600" height="750" style="border:1px solid lightgrey;">
@@ -71,10 +84,13 @@
                     <h3 id="rate">4.00s</h3>
                 </div>
             </div>
-            <div class="row" style="padding-top: 456px;">
-                <div class="column">
-                    <h3 id="changeDiffText">Change difficulty:</h3>
+            <div class="row" style="padding-top: 12px;">
+                <div class="music-button">
+                    <img src="../imgs/play-button.png" alt="pause" id="playButton">
                 </div>
+            </div>
+            <div class="row" style="padding-top: 394px;">
+                <h3 id="changeDiffText">Change difficulty:</h3>
             </div>
             <div class="row">
                 <div class="box" id="difficultyBox">
